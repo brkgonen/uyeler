@@ -1,13 +1,32 @@
 from rest_framework import serializers
 from api.models import User
 
-class UserSerializer(serializers.Serializer):
+from datetime import datetime, timezone
+from django.utils.timesince import timesince
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+    time_since_pub = serializers.SerializerMethodField()
+    class Meta:
+        model =  User
+        fields = '__all__'
+
+    def get_time_since_pub(self, object):
+        now = datetime.now(timezone.utc)
+        pub_date = object.kayit_tarihi
+        time_delta = timesince(pub_date,now)
+        return time_delta
+
+
+####Standart
+class UserDefaultSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     isim = serializers.CharField()
     email = serializers.EmailField()
     tel_numara = serializers.CharField()
-    kayit_tarihi = serializers.DateTimeField()
-    aktif = serializers.BooleanField(read_only=True)
+    kayit_tarihi = serializers.DateTimeField(read_only=True)
+    aktif = serializers.BooleanField()
 
     def create(self, validated_data):
         print(validated_data)
